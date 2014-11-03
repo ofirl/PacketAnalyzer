@@ -1,8 +1,12 @@
 #ifndef PACKETSMANAGER_H_
 #define PACKETSMANAGER_H_
 
+#include <stdlib.h>
+#include <stdio.h>
+
 #include <pcap.h>
 #include "Packet.h"
+#include <ctype.h>
 
 Packet* MakeNewPacket();
 char* ParsePacket(Packet* packet);

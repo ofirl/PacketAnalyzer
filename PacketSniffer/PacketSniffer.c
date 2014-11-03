@@ -107,14 +107,6 @@ void packetReceived(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_cha
 
 int main(int argc,char **argv)
 {
-    int i;
-    char *dev;
-    char errbuf[PCAP_ERRBUF_SIZE];
-    pcap_t* descr;
-    const u_char *packet;
-    struct pcap_pkthdr hdr;     /* pcap.h */
-    struct ether_header *eptr;  /* net/ethernet.h */
-
     if(argc != 2){ fprintf(stdout,"Usage: %s numpackets\n",argv[0]);return 0;}
 
     SnifferList = makeNewList();
