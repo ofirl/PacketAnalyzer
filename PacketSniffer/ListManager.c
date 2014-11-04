@@ -1,4 +1,5 @@
 #include "ListManager.h"
+#include <time.h>
 
 #define BUFSIZE 500
 
@@ -33,11 +34,6 @@ List AddNode(Packet* packet, List list)
 // appends the two lists, adds list2 to the end of list1.
 List AppendLists(List list1, List list2)
 {
-	struct sniff_ip* ip = list1->head->content->ipHeader;
-
-	printf("test0 :\n       From: %s\n", inet_ntoa(ip->ip_src));
-	printf("         To: %s\n", inet_ntoa(ip->ip_dst));
-
 	if (list2->head != NULL)
 	{
 		list1->tail->next = list2->head;
@@ -67,7 +63,7 @@ int writeListToFile()
 	ListNode currentNode = SavedPackets->head;
 	while (currentNode != NULL)
 	{
-		//TODO : print the packet here
+		//printing the packet, note : if payload exists the file might not be UTF-8
 		int printTest = fprintf(f, "%s\n", ParsePacket(currentNode->content));
 
 		if (printTest == 0)
@@ -75,9 +71,6 @@ int writeListToFile()
 
 		currentNode = currentNode->next;
 		count++;
-
-		if (count == 1000) //TODO : delete, debug purpose
-			break;
 	}
 
 	printf("wrote %d packets to file\n", count);
@@ -106,3 +99,23 @@ void FreeList(List list, int freeItems)
 	free(list);
 }
 
+int CleanList()
+{
+	int count = 0;
+	ListNode currentNode;
+	time_t currentTime = time(&currentTime);
+
+	while ((int64_t)currentTime - SavedPackets->tail->content->timeStamp > 600)
+	{
+		count++;
+		currentNode = SavedPackets->tail;
+
+		SavedPackets->tail = SavedPackets->tail->prev;
+		SavedPackets->tail->next = NULL;
+
+		FreePacket(currentNode->content);
+		free (currentNode);
+	}
+
+	return count;
+}

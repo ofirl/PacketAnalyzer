@@ -98,6 +98,7 @@ void packetReceived(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_cha
     newPacket->size_payload = size_payload;
     newPacket->tcpHeader = tcp;
     newPacket->payload = payload;
+    newPacket->timeStamp = (int64_t) pkthdr->ts.tv_sec;
 
     //adding the packet to the SnifferList
     pthread_mutex_lock(SnifferListLock);

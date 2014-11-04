@@ -69,6 +69,8 @@ typedef struct {
 	struct pcap_pkthdr* header;
 	u_char* content;
 
+	int64_t timeStamp;
+
 	struct sniff_ethernet* ethernetHeader;
 	struct sniff_ip* ipHeader;
 	struct sniff_tcp* tcpHeader;

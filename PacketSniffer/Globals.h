@@ -6,6 +6,7 @@
 #include <arpa/inet.h>
 #include <netinet/if_ether.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #include <pcap.h>
 #include <pthread.h>
