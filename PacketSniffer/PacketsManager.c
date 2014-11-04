@@ -14,13 +14,21 @@ char* ParsePacket(Packet* packet)
 	struct sniff_ip *ip = packet->ipHeader;
 	struct sniff_tcp *tcp = packet->tcpHeader;
 	char *payload = packet->payload;
+	char *ipSrc = (char*) malloc(sizeof(char) * 40);
+	char *ipDst = (char*) malloc(sizeof(char) * 40);
+
+	asprintf(&ipSrc, "%s", inet_ntoa(ip->ip_src));
+	asprintf(&ipDst, "%s", inet_ntoa(ip->ip_dst));
 
 	asprintf(&parsedPacket, "       From: %s\n         To: %s\n"
 			"   Src port: %d\n   Dst port: %d\n"
 			"   Payload (%d bytes):\n%s",
-			inet_ntoa(ip->ip_src), inet_ntoa(ip->ip_dst),
+			ipSrc, ipDst,
 			ntohs(tcp->th_sport), ntohs(tcp->th_dport),
 			packet->size_payload, packet->payload);
+
+	free(ipSrc);
+	free(ipDst);
 
 	//print_payload(payload, packet->size_payload);
 

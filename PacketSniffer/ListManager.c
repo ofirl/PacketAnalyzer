@@ -33,6 +33,11 @@ List AddNode(Packet* packet, List list)
 // appends the two lists, adds list2 to the end of list1.
 List AppendLists(List list1, List list2)
 {
+	struct sniff_ip* ip = list1->head->content->ipHeader;
+
+	printf("test0 :\n       From: %s\n", inet_ntoa(ip->ip_src));
+	printf("         To: %s\n", inet_ntoa(ip->ip_dst));
+
 	if (list2->head != NULL)
 	{
 		list1->tail->next = list2->head;
@@ -40,9 +45,12 @@ List AppendLists(List list1, List list2)
 		list1->tail = list2->tail;
 	}
 
+	list2->head = list1->head;
+	list2->tail = list1->tail;
+
 	printf("lists appended\n");
 
-	return list1;
+	return list2;
 }
 
 int writeListToFile()
@@ -67,6 +75,9 @@ int writeListToFile()
 
 		currentNode = currentNode->next;
 		count++;
+
+		if (count == 1000) //TODO : delete, debug purpose
+			break;
 	}
 
 	printf("wrote %d packets to file\n", count);
