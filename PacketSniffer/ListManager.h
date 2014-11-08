@@ -17,5 +17,7 @@ List AddNode(Packet* packet, List list);
 List AppendLists(List list1, List list2);
 int writeListToFile();
 void FreeList(List list, int freeItems);
+void FreeListItems(ListNode head);
+int CleanList();
 
 #endif /* LISTMANAGER_H_ */

@@ -1,5 +1,7 @@
 #include "Globals.h"
 
+#define SOCKETPATH "/home/ofirl/Desktop/test/socketTest"
+
 int packetCount = 0;
 
 /* callback function that is passed to pcap_loop(..) and called each time
@@ -192,25 +194,42 @@ void* listManagerThreadStart(void* arg)
 	//List SnifferListCopy = makeNewList();
 	int gotSignal = 0;
 
+	int fd = socket(AF_UNIX, SOCK_STREAM, 0);
+	struct sockaddr_un addr;
+	memset(&addr, 0, sizeof(addr));
+	addr.sun_family = AF_UNIX;
+	strncpy(addr.sun_path, SOCKETPATH, sizeof(addr.sun_path)-1);
+	bind(fd, (struct sockaddr*)&addr, sizeof(addr));
+
+	struct timeval* timeout = (struct timeval*) malloc(sizeof(struct timeval));
+	timeout->tv_sec = 10;
+	timeout->tv_usec = 0;
+
+	fd_set fds;
+	FD_SET(fd, &fds);
+
 	while(1)
 	{
-		//TODO : delete
-		//debug purpose
-		gotSignal = 1;
-		sleep(10);
-		/*
-		int input;
-		scanf("%d", &input);
-		if (input)
-		{
-			gotSignal = 1;
-		}*/
-
 		//listen to packets (or other method of communication) with timeout
-		//TODO : add this section, if received signal set gotSignal to 1
+		//TODO : check this section, if received signal set gotSignal to 1
+		timeout->tv_sec = 10;
+		timeout->tv_usec = 0;
+		int result = select(1, &fds, NULL, NULL, timeout);
+
+		if (result == -1)
+		{
+			printf("Error : Select crashed\n");
+			//TODO: free memory and exit
+			return NULL;
+		}
+		if (result > 0)
+			gotSignal = 1;
+
+		//TODO : delete, debug purposes
+		gotSignal = 1;
 
 		//add SnifferList to SavedPackets
-		//get the list and get the sniffer a new list - critical code!
+		//get the list and get the sniffer a new list - critical segment!
 		pthread_mutex_lock(SnifferListLock);
 		tempList->head = SnifferList->head;
 		tempList->tail = SnifferList->tail;
@@ -226,11 +245,13 @@ void* listManagerThreadStart(void* arg)
 			SavedPackets = AppendLists(tempList, SavedPackets);
 
 		//clean SavedPackets
-		//TODO : free packets according to their time
+		CleanList();
 
 		//check for signal - if so, write to file
 		if (gotSignal)
 		{
+			gotSignal = 0;
+
 			if (!writeListToFile())
 			{
 				printf("error writing to file\n");

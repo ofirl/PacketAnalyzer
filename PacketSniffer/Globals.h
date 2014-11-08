@@ -7,6 +7,7 @@
 #include <netinet/if_ether.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <sys/un.h>
 
 #include <pcap.h>
 #include <pthread.h>

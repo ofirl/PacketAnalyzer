@@ -2,6 +2,7 @@
 #include <time.h>
 
 #define BUFSIZE 500
+#define TIMETOREMOVEPACKETS 20 //10 min = 600 sec
 
 //returns a new malloced list
 List makeNewList()
@@ -17,6 +18,8 @@ List makeNewList()
 List AddNode(Packet* packet, List list)
 {
 	ListNode newNode = (ListNode) malloc(sizeof(struct ListNode));
+	newNode->next = NULL;
+	newNode->prev = NULL;
 	newNode->content = packet;
 
 	newNode->next = list->head;
@@ -82,40 +85,64 @@ int writeListToFile()
 void FreeList(List list, int freeItems)
 {
 	if (freeItems)
-	{
-		ListNode currentNode = list->head;
-		while (currentNode->next != NULL) //go over the list and freeing memory
-		{
-			currentNode = currentNode->next;
-			FreePacket(currentNode->content);
-
-			free(currentNode->prev);
-		}
-
-		FreePacket(currentNode->content); //free the last one
-		free(currentNode);
-	}
+		FreeListItems(list->head);
 
 	free(list);
+}
+
+void FreeListItems(ListNode head)
+{
+	ListNode currentNode = head;
+	while (currentNode->next != NULL) //go over the list and freeing memory
+	{
+		currentNode = currentNode->next;
+		FreePacket(currentNode->prev->content);
+
+		free(currentNode->prev);
+	}
+
+	FreePacket(currentNode->content); //free the last one
+	free(currentNode);
 }
 
 int CleanList()
 {
 	int count = 0;
-	ListNode currentNode;
+	ListNode currentNode = SavedPackets->tail;
 	time_t currentTime = time(&currentTime);
 
-	while ((int64_t)currentTime - SavedPackets->tail->content->timeStamp > 600)
+	if (currentNode == NULL)
+		return 0;
+
+	while (currentNode != NULL &&
+			(int64_t)currentTime - currentNode->content->timeStamp > TIMETOREMOVEPACKETS)
 	{
 		count++;
-		currentNode = SavedPackets->tail;
+		currentNode = currentNode->prev;
 
-		SavedPackets->tail = SavedPackets->tail->prev;
-		SavedPackets->tail->next = NULL;
+		//SavedPackets->tail = SavedPackets->tail->prev;
+		//SavedPackets->tail->next = NULL;
 
-		FreePacket(currentNode->content);
-		free (currentNode);
+		//FreePacket(currentNode->content);
+		//free (currentNode);
 	}
 
+	if (count == 0)
+		return 0;
+
+	if (currentNode == NULL)
+	{
+		FreeListItems(SavedPackets->head);
+		SavedPackets->head = NULL;
+		SavedPackets->tail = SavedPackets->head;
+	}
+	else
+	{
+		SavedPackets->tail = currentNode;
+		FreeListItems(currentNode->next);
+		SavedPackets->tail->next = NULL;
+	}
+
+	printf("Cleaned %d packets\n", count);
 	return count;
 }

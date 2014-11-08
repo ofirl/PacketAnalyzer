@@ -3,7 +3,6 @@
 Packet* MakeNewPacket()
 {
 	Packet* newPacket = (Packet*) malloc(sizeof(Packet));
-	newPacket->header = (struct pcap_pkthdr*) malloc(sizeof(struct pcap_pkthdr));
 	return newPacket;
 }
 
@@ -37,7 +36,6 @@ char* ParsePacket(Packet* packet)
 
 void FreePacket(Packet* packet)
 {
-	free(packet->header);
 	free(packet);
 }
 
