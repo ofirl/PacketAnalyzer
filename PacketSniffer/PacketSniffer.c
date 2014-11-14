@@ -21,7 +21,7 @@ void packetReceived(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_cha
     const struct sniff_ethernet *ethernet;  /* The ethernet header [1] */
     const struct sniff_ip *ip;              /* The IP header */
     const struct sniff_tcp *tcp;            /* The TCP header */
-    const char *payload;                    /* Packet payload */
+    const u_char *payload;                    /* Packet payload */
 
     int size_ip;
     int size_tcp;
@@ -134,7 +134,6 @@ void* listenThreadStart(void* num)
 {
 	char *dev;
 	char errbuf[PCAP_ERRBUF_SIZE];
-	pcap_t* descr;
 	char filter_exp[] = "tcp";
 	struct bpf_program fp;			/* compiled filter program (expression) */
 	bpf_u_int32 net;			/* ip */
@@ -184,6 +183,7 @@ void* listenThreadStart(void* num)
 	pcap_loop(descr,0,packetReceived,NULL);
 
 	fprintf(stdout,"\nDone processing packets... wheew!\n");
+
 	return 0;
 }
 
@@ -280,6 +280,7 @@ void* listManagerThreadStart(void* arg)
 void freeAll()
 {
 	free(timeout);
+	pcap_close(descr);
 	FreeList(SavedPackets, 1);
 	FreeList(SnifferList, 1);
 	exit(1);

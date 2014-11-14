@@ -24,5 +24,6 @@ pthread_t packetListManager;
 void* listManagerThreadStart(void* arg);
 
 struct timeval* timeout;
+pcap_t* descr;
 
 void freeAll();
