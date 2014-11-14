@@ -9,12 +9,14 @@ Packet* MakeNewPacket()
 char* ParsePacket(Packet* packet)
 {
 	char* parsedPacket;
-	struct sniff_ethernet *ethernet = packet->ethernetHeader;
+	//struct sniff_ethernet *ethernet = packet->ethernetHeader; //place holder for future use
 	struct sniff_ip *ip = packet->ipHeader;
 	struct sniff_tcp *tcp = packet->tcpHeader;
-	char *payload = packet->payload;
-	char *ipSrc = (char*) malloc(sizeof(char) * 40);
-	char *ipDst = (char*) malloc(sizeof(char) * 40);
+	u_char *payload = packet->payload;
+	//char *ipSrc = (char*) malloc(sizeof(char) * 40);
+	//char *ipDst = (char*) malloc(sizeof(char) * 40);
+	char ipSrc[40];
+	char ipDst[40];
 
 	asprintf(&ipSrc, "%s", inet_ntoa(ip->ip_src));
 	asprintf(&ipDst, "%s", inet_ntoa(ip->ip_dst));
@@ -24,10 +26,10 @@ char* ParsePacket(Packet* packet)
 			"   Payload (%d bytes):\n%s",
 			ipSrc, ipDst,
 			ntohs(tcp->th_sport), ntohs(tcp->th_dport),
-			packet->size_payload, packet->payload);
+			packet->size_payload, payload);
 
-	free(ipSrc);
-	free(ipDst);
+	//free(ipSrc);
+	//free(ipDst);
 
 	//print_payload(payload, packet->size_payload);
 

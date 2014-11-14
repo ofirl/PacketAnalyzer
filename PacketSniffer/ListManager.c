@@ -67,10 +67,13 @@ int writeListToFile()
 	while (currentNode != NULL)
 	{
 		//printing the packet, note : if payload exists the file might not be UTF-8
-		int printTest = fprintf(f, "%s\n", ParsePacket(currentNode->content));
+		char* packet = ParsePacket(currentNode->content);
+		int printTest = fprintf(f, "%s\n", packet);
 
 		if (printTest == 0)
 			return 0;
+
+		free(packet);
 
 		currentNode = currentNode->next;
 		count++;

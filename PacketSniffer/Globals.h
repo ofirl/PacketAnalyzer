@@ -22,3 +22,7 @@ void* listenThreadStart(void* num);
 
 pthread_t packetListManager;
 void* listManagerThreadStart(void* arg);
+
+struct timeval* timeout;
+
+void freeAll();

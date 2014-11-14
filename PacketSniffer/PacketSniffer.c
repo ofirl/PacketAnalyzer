@@ -201,12 +201,15 @@ void* listManagerThreadStart(void* arg)
 	strncpy(addr.sun_path, SOCKETPATH, sizeof(addr.sun_path)-1);
 	bind(fd, (struct sockaddr*)&addr, sizeof(addr));
 
-	struct timeval* timeout = (struct timeval*) malloc(sizeof(struct timeval));
+	timeout = (struct timeval*) malloc(sizeof(struct timeval));
 	timeout->tv_sec = 10;
 	timeout->tv_usec = 0;
 
 	fd_set fds;
 	FD_SET(fd, &fds);
+
+	//TODO : delete, debug purposes
+	int count = 0;
 
 	while(1)
 	{
@@ -219,14 +222,16 @@ void* listManagerThreadStart(void* arg)
 		if (result == -1)
 		{
 			printf("Error : Select crashed\n");
-			//TODO: free memory and exit
+			freeAll();
 			return NULL;
 		}
 		if (result > 0)
 			gotSignal = 1;
 
 		//TODO : delete, debug purposes
+		/*
 		gotSignal = 1;
+		count++; */
 
 		//add SnifferList to SavedPackets
 		//get the list and get the sniffer a new list - critical segment!
@@ -261,6 +266,21 @@ void* listManagerThreadStart(void* arg)
 			gotSignal = 0;
 			//return (void*)1;
 		}
+
+		//TODO : delete, debug purposes
+		/*
+		if (count == 3)
+		{
+			freeAll();
+		}*/
 	}
 	return 0;
+}
+
+void freeAll()
+{
+	free(timeout);
+	FreeList(SavedPackets, 1);
+	FreeList(SnifferList, 1);
+	exit(1);
 }
